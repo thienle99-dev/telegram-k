@@ -473,6 +473,7 @@ const lang = {
   'MiniChat.Minimize': 'Minimize chat',
   'MiniChat.Restore': 'Restore mini chat',
   'MiniChat.OpenFull': 'Open in full chat',
+  'MiniChat.PictureInPicture': 'Open mini chat in Picture-in-Picture',
   'MiniChat.Close': 'Close mini chat',
   'MiniChat.Resize': 'Resize mini chat',
   'MiniChat.NewMessages': 'New messages: %s',

@@ -4,15 +4,27 @@ import type {AppManagers} from '@lib/managers';
 import appImManager from '@lib/appImManager';
 import {i18n, LangPackKey} from '@lib/langPack';
 import getPeerTitle from '@components/wrappers/getPeerTitle';
+import {avatarNew} from '@components/avatarNew';
 import mediaSizes from '@helpers/mediaSizes';
+import {getMiddleware} from '@helpers/middleware';
+import mirrorDocumentStyles from '@helpers/dom/mirrorDocumentStyles';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import rootScope from '@lib/rootScope';
+import DOCUMENT_PICTURE_IN_PICTURE_SUPPORTED from '@environment/documentPictureInPictureSupport';
+import {clearDelegatedEvents, delegateEvents} from 'solid-js/web';
+import {logger} from '@lib/logger';
 import {canOpenMiniChat, clampMiniChatState, isMiniChatViewportSupported, MINI_CHAT_MIN_HEIGHT, MINI_CHAT_MIN_WIDTH, MINI_CHAT_STORAGE_KEY, parseMiniChatState} from '@components/miniChat/state';
 import type {MiniChatState} from '@components/miniChat/state';
 import './miniChat.scss';
 
+const log = logger('MINI-CHAT');
+
+type MiniChatEntry = {state: MiniChatState, element: HTMLElement, chat: Chat, title: HTMLElement, badge: HTMLElement, newMessages: number, opener?: HTMLElement, avatar: ReturnType<typeof avatarNew>, avatarMiddleware: ReturnType<typeof getMiddleware>};
+type MiniChatWindowSession = {window: Window, entry: MiniChatEntry, placeholder: Comment, disposeStyles: () => void, reset: HTMLStyleElement, onPageHide: () => void, focusTarget?: HTMLElement};
+
 class MiniChatManager {
-  private entries = new Map<PeerId, {state: MiniChatState, element: HTMLElement, chat: Chat, title: HTMLElement, badge: HTMLElement, newMessages: number, opener?: HTMLElement}>();
+  private entries = new Map<PeerId, MiniChatEntry>();
+  private floating: MiniChatWindowSession | undefined;
   private host = document.createElement('div');
   private zIndex = 500;
   private restored = false;
@@ -90,6 +102,9 @@ class MiniChatManager {
 
     const header = document.createElement('header');
     header.className = 'mini-chat-header';
+    const avatarMiddleware = getMiddleware();
+    const avatar = avatarNew({peerId: state.peerId, size: 40, middleware: avatarMiddleware.get(), isDialog: true});
+    avatar.node.classList.add('mini-chat-avatar');
     const title = document.createElement('div');
     title.className = 'mini-chat-title';
     title.textContent = String(state.peerId);
@@ -97,7 +112,10 @@ class MiniChatManager {
     controls.className = 'mini-chat-controls';
     const minimize = this.button(state.minimized ? 'MiniChat.Restore' : 'MiniChat.Minimize', state.minimized ? '□' : '−', () => this.minimize(state.peerId));
     minimize.setAttribute('aria-expanded', String(!state.minimized));
-    const maximize = this.button('MiniChat.OpenFull', '↗', () => this.maximize(state.peerId));
+    const maximize = this.button('MiniChat.PictureInPicture', '↗', () => {
+      const entry = this.entries.get(state.peerId);
+      if(entry) void this.openInWindow(entry);
+    });
     const close = this.button('MiniChat.Close', '×', () => this.close(state.peerId));
     controls.append(minimize, maximize, close);
     const badge = document.createElement('span');
@@ -105,10 +123,7 @@ class MiniChatManager {
     badge.hidden = true;
     badge.setAttribute('role', 'status');
     badge.setAttribute('aria-live', 'polite');
-    header.append(title, badge, controls);
-    title.addEventListener('click', () => {
-      if(state.minimized) this.minimize(state.peerId);
-    });
+    header.append(avatar.node, title, badge, controls);
     element.append(header);
 
     const chat = new Chat(appImManager, managers, false, {sharedMedia: true});
@@ -138,7 +153,7 @@ class MiniChatManager {
     this.enableResize(element);
     if(state.minimized) element.classList.add('is-minimized');
     this.host.append(element);
-    const entry = {state, element, chat, title, badge, newMessages: 0, opener};
+    const entry = {state, element, chat, title, badge, newMessages: 0, opener, avatar, avatarMiddleware};
     this.entries.set(state.peerId, entry);
     this.place(entry);
     chat.setPeer({peerId: state.peerId});
@@ -245,6 +260,11 @@ class MiniChatManager {
   private minimize(peerId: PeerId) {
     const entry = this.entries.get(peerId);
     if(!entry) return;
+    if(this.floating?.entry === entry) {
+      const session = this.floating;
+      this.returnFromWindow(session, false);
+      session.window.close();
+    }
     entry.state.minimized = !entry.state.minimized;
     entry.element.classList.toggle('is-minimized', entry.state.minimized);
     const control = entry.element.querySelector<HTMLButtonElement>('.mini-chat-controls button');
@@ -261,6 +281,85 @@ class MiniChatManager {
     this.close(peerId, false);
   }
 
+  private async openInWindow(entry: MiniChatEntry) {
+    if(this.floating?.entry === entry) {
+      this.floating.window.focus();
+      return;
+    }
+
+    if(this.floating) {
+      const previous = this.floating;
+      this.returnFromWindow(previous, false);
+      previous.window.close();
+    }
+
+    if(entry.state.minimized) {
+      entry.state.minimized = false;
+      entry.element.classList.remove('is-minimized');
+      const minimize = entry.element.querySelector<HTMLButtonElement>('.mini-chat-controls button');
+      minimize.textContent = '−';
+      minimize.setAttribute('aria-label', i18n('MiniChat.Minimize').textContent);
+      minimize.setAttribute('aria-expanded', 'true');
+    }
+
+    let pipWindow: Window;
+    const documentPip = window.documentPictureInPicture;
+    if(DOCUMENT_PICTURE_IN_PICTURE_SUPPORTED && documentPip && !documentPip.window) {
+      try {
+        // requestWindow is called synchronously from the header button's click handler.
+        pipWindow = await documentPip.requestWindow({width: 420, height: 650});
+      } catch(err) {
+        log.error('Could not open the mini chat in Picture-in-Picture', err);
+        return;
+      }
+    } else {
+      // This fallback gets a separate resizable window, but browsers do not guarantee that it stays on top.
+      const fallbackWindow = window.open('', `tweb-mini-chat-${entry.state.peerId}`, 'popup,width=420,height=650,resizable=yes');
+      if(!fallbackWindow) return;
+      pipWindow = fallbackWindow;
+    }
+
+    const pipDocument = pipWindow.document;
+    const disposeStyles = mirrorDocumentStyles(document, pipDocument);
+    pipDocument.title = entry.title.textContent || i18n('MiniChat.Title').textContent;
+    const reset = pipDocument.createElement('style');
+    reset.textContent = 'html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}';
+    pipDocument.head.append(reset);
+
+    this.updateState(entry.element);
+    const placeholder = document.createComment('mini-chat-pip');
+    const focusTarget = document.activeElement instanceof HTMLElement ? document.activeElement : undefined;
+    entry.element.before(placeholder);
+    entry.element.classList.add('is-pip');
+    pipDocument.body.append(entry.element);
+
+    const delegatedEvents = (document as Document & {'_$DX_DELEGATE'?: Set<string>})['_$DX_DELEGATE'];
+    if(delegatedEvents?.size) delegateEvents([...delegatedEvents], pipDocument);
+
+    const onPageHide = () => {
+      const session = this.floating;
+      if(session?.window === pipWindow) this.returnFromWindow(session);
+    };
+    this.floating = {window: pipWindow, entry, placeholder, disposeStyles, reset, onPageHide, focusTarget};
+    pipWindow.addEventListener('pagehide', onPageHide);
+    pipWindow.requestAnimationFrame(() => entry.chat.input.messageInputField.input.focus());
+  }
+
+  private returnFromWindow(session: MiniChatWindowSession, restoreFocus = true) {
+    if(this.floating !== session) return;
+    this.floating = undefined;
+    session.window.removeEventListener('pagehide', session.onPageHide);
+    clearDelegatedEvents(session.window.document);
+    session.disposeStyles();
+    session.reset.remove();
+    session.entry.element.classList.remove('is-pip');
+    if(session.placeholder.isConnected) session.placeholder.replaceWith(session.entry.element);
+    else this.host.append(session.entry.element);
+    this.place(session.entry);
+    if(restoreFocus && session.focusTarget?.isConnected) session.focusTarget.focus();
+    this.save();
+  }
+
   private toggleMaximize(element: HTMLElement) {
     const entry = Array.from(this.entries.values()).find((item) => item.element === element);
     if(entry) this.maximize(entry.state.peerId);
@@ -270,7 +369,13 @@ class MiniChatManager {
     const entry = this.entries.get(peerId);
     if(!entry) return;
     this.entries.delete(peerId);
+    if(this.floating?.entry.state.peerId === peerId) {
+      const session = this.floating;
+      this.returnFromWindow(session, false);
+      session.window.close();
+    }
     entry.chat.destroy();
+    entry.avatarMiddleware.destroy();
     entry.element.remove();
     this.save();
     if(restoreFocus && entry.opener?.isConnected) entry.opener.focus();
