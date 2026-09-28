@@ -9,6 +9,7 @@
     "start-in-docker": "vite --host",
     "docker:build": "docker build -f ./.docker/Dockerfile_production -t telegram-k-tweb.production:latest .",
     "docker:push": "docker push telegram-k-tweb.production:latest",
+    "docker:run": "docker compose up -d tweb.production",
     "serve": "pnpm run build && node server.js --dist",
     "build": "pnpm test --run && pnpm run typecheck && pnpm run generate-changelog && vite build && pnpm run check-bundle",
     "check-bundle": "node scripts/check-bundle-mangling.mjs dist",
