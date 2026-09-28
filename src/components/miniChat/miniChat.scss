@@ -296,8 +296,16 @@
 .mini-chat-window.is-pip {
   position: relative;
   inset: auto;
+  left: 0 !important;
+  top: 0 !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  grid-template-rows: 54px minmax(0, 1fr);
   width: 100% !important;
-  max-width: none;
+  max-width: none !important;
   height: 100vh !important;
   height: 100dvh !important;
   max-height: none;
@@ -309,7 +317,8 @@
 }
 
 .mini-chat-window.is-pip > .mini-chat-header {
-  min-height: 56px;
+  min-height: 0;
+  height: 54px;
   padding-inline: 12px;
   border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, .06));
 }
@@ -325,8 +334,12 @@
 }
 
 @media(max-width: 380px) {
+  .mini-chat-window.is-pip {
+    grid-template-rows: 50px minmax(0, 1fr);
+  }
+
   .mini-chat-window.is-pip > .mini-chat-header {
-    min-height: 50px;
+    height: 50px;
     padding-inline: 8px;
   }
 

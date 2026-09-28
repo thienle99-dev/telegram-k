@@ -434,7 +434,9 @@ class MiniChatManager {
 
   private onResize = () => {
     if(!this.restored && this.managers) this.restore(this.managers);
-    this.entries.forEach((entry) => this.place(entry));
+    this.entries.forEach((entry) => {
+      if(this.floating?.entry !== entry) this.place(entry);
+    });
     this.save();
   };
 
