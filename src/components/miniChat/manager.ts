@@ -95,7 +95,7 @@ class MiniChatManager {
 
   private mount(state: MiniChatState, managers: AppManagers, opener?: HTMLElement) {
     const element = document.createElement('section');
-    element.className = 'mini-chat-window';
+    element.className = 'mini-chat-window detached-chat-window';
     element.setAttribute('aria-label', i18n('MiniChat.Title').textContent);
     element.style.width = `${state.width}px`;
     element.style.height = `${state.height}px`;
@@ -133,7 +133,7 @@ class MiniChatManager {
     chat.onPreviewClose = () => this.close(state.peerId);
     chat.setType(ChatType.Chat);
     chat.recomputePaddings();
-    chat.container.classList.add('mini-chat-content', 'active');
+    chat.container.classList.add('mini-chat-content', 'detached-chat', 'active');
     chat.container.id = `mini-chat-content-${state.peerId}`;
     minimize.setAttribute('aria-controls', chat.container.id);
     element.append(chat.container);
@@ -323,7 +323,7 @@ class MiniChatManager {
     const disposeStyles = mirrorDocumentStyles(document, pipDocument);
     pipDocument.title = entry.title.textContent || i18n('MiniChat.Title').textContent;
     const reset = pipDocument.createElement('style');
-    reset.textContent = 'html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}';
+    reset.textContent = 'html,body{box-sizing:border-box;margin:0;padding:0;width:100%;height:100%;overflow:hidden}*,*::before,*::after{box-sizing:border-box}';
     pipDocument.head.append(reset);
 
     this.updateState(entry.element);
