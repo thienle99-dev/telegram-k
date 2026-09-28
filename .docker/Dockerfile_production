@@ -20,7 +20,10 @@ COPY . .
 
 # Build the frontend with same-origin Telegram transport URLs.
 ENV VITE_MTPROTO_SAME_ORIGIN_PROXY=1
-RUN node build
+RUN pnpm run typecheck \
+  && pnpm run generate-changelog \
+  && pnpm exec vite build \
+  && pnpm run check-bundle
 
 
 #pull nginx as webser and load balancer
@@ -29,4 +32,4 @@ FROM nginx:stable-alpine3.20-slim
 RUN apk update && apk upgrade --no-cache
 
 # copy the build files to nginx entry point
-COPY --from=tweb-build /app/public /usr/share/nginx/html
+COPY --from=tweb-build /app/dist /usr/share/nginx/html

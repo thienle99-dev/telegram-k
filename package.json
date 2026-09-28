@@ -7,7 +7,7 @@
     "preinstall": "npx only-allow pnpm",
     "start": "vite",
     "start-in-docker": "vite --host",
-    "docker:build": "docker build -f ./.docker/Dockerfile_production -t telegram-k-tweb.production:latest .",
+    "docker:build": "pnpm run typecheck && pnpm run generate-changelog && VITE_MTPROTO_SAME_ORIGIN_PROXY=1 vite build && pnpm run check-bundle && docker build -f ./.docker/Dockerfile_production --target tweb-static -t telegram-k-tweb.production:latest .",
     "docker:push": "docker push telegram-k-tweb.production:latest",
     "serve": "pnpm run build && node server.js --dist",
     "build": "pnpm test --run && pnpm run typecheck && pnpm run generate-changelog && vite build && pnpm run check-bundle",
