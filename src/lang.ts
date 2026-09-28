@@ -372,6 +372,7 @@ const lang = {
   },
   'Permissions.RemoveFromGroup': 'Are you sure you want to remove **%s** from the group?',
   'PWA.Install': 'Install App',
+  'PWA.Install.IOSInstructions': 'In Safari, tap Share, then choose Add to Home Screen.',
   'PictureInPicture': 'Picture-in-Picture',
   'Link.Available': 'Link is available',
   'Link.Taken': 'Link is already taken',

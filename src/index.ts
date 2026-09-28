@@ -35,8 +35,7 @@ import {parseUriParamsLine} from '@helpers/string/parseUriParams';
 import Modes from '@config/modes';
 import {AuthState} from '@types';
 import DEBUG, {IS_BETA, IS_POPUP_SANDBOX} from '@config/debug';
-import IS_INSTALL_PROMPT_SUPPORTED from '@environment/installPrompt';
-import cacheInstallPrompt from '@helpers/dom/installPrompt';
+import '@hooks/usePWAInstall';
 import {fillLocalizedDates} from '@helpers/date';
 import {nextRandomUint} from '@helpers/random';
 import {createEffect} from 'solid-js';
@@ -441,10 +440,6 @@ if(import.meta.env.DEV) {
 
   rootScope.managers = getProxiedManagers();
   await checkLastActiveAccountFromTMe();
-
-  if(IS_INSTALL_PROMPT_SUPPORTED) {
-    cacheInstallPrompt();
-  }
 
   // Make sure this is before checking if the app is locked.
   // If this value is cached, and a different tab locks/unlocks, we'll see the wrong state of the app.

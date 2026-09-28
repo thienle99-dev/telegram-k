@@ -1,17 +1,11 @@
-let callback: () => Promise<void>;
-export default function cacheInstallPrompt() {
-  window.addEventListener('beforeinstallprompt', (deferredPrompt: any) => {
-    callback = async() => {
-      deferredPrompt.prompt();
-      const {outcome} = await deferredPrompt.userChoice;
-      const installed = outcome === 'accepted';
-      if(installed) {
-        callback = undefined;
-      }
-    };
-  });
-}
+import usePWAInstall from '@hooks/usePWAInstall';
 
 export function getInstallPrompt() {
-  return callback;
+  const {canInstall, installApp} = usePWAInstall();
+  return canInstall() ? installApp : undefined;
+}
+
+export function canShowIOSInstallInstructions() {
+  const {isInstalled} = usePWAInstall();
+  return /iPhone|iPad|iPod/.test(navigator.userAgent) && !isInstalled();
 }

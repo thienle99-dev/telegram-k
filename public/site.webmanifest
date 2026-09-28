@@ -60,6 +60,12 @@
             "src": "assets/img/android-chrome-512x512.png?v=jw3mK7G9Ry",
             "sizes": "512x512",
             "type": "image/png"
+        },
+        {
+            "src": "assets/img/icon_square_512.png?v=jw3mK7G9Ry",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
         }
     ],
     "screenshots" : [{

@@ -267,11 +267,36 @@ watchCacheStoragesLifetime({
 watchMtprotoOnDev({connectedWindows, onWindowConnected});
 
 const onFetch = (event: FetchEvent): void => {
+  if(import.meta.env.PROD && event.request.mode === 'navigate' && event.request.method === 'GET' && new URL(event.request.url).origin === location.origin) {
+    return event.respondWith((async() => {
+      try {
+        const response = await fetch(event.request);
+        const cacheControl = response.headers.get('Cache-Control') || '';
+        if(response.ok && response.headers.get('Content-Type')?.toLowerCase().includes('text/html') && !/no-store|no-cache|private/i.test(cacheControl)) {
+          const cache = await ctx.caches.open(CACHE_ASSETS_NAME);
+          cache.put(event.request, response.clone());
+          if(new URL(event.request.url).pathname === new URL(ctx.registration.scope).pathname) {
+            cache.put(ctx.registration.scope, response.clone());
+          }
+        }
+
+        return response;
+      } catch(err) {
+        const cache = await ctx.caches.open(CACHE_ASSETS_NAME);
+        const cachedPage = await cache.match(event.request) || await cache.match(ctx.registration.scope);
+        if(cachedPage) return cachedPage;
+        throw err;
+      }
+    })());
+  }
+
   // Web manifests must reach the network so installed PWA metadata can update.
+  const requestPath = new URL(event.request.url).pathname;
   if(
     import.meta.env.PROD &&
     !IS_SAFARI &&
     event.request.url.indexOf(location.origin + '/') === 0 &&
+    !/(?:^|\/)(?:api|mtproto)(?:\/|$)/i.test(requestPath) &&
     event.request.url.match(/\.(js|css|jpe?g|json|wasm|png|mp3|svg|tgs|ico|woff2?|ttf)(?:\?.*)?$/)
   ) {
     return event.respondWith(requestCache(event));

@@ -46,7 +46,7 @@ import mediaSizes from '@helpers/mediaSizes';
 import updateColumnWidths, {setOpenTabsLeftSidebar} from '@helpers/updateColumnWidths';
 import installColumnResize from '@helpers/installColumnResize';
 import {doubleRaf, fastRaf} from '@helpers/schedulers';
-import {getInstallPrompt} from '@helpers/dom/installPrompt';
+import {canShowIOSInstallInstructions, getInstallPrompt} from '@helpers/dom/installPrompt';
 import DOCUMENT_PICTURE_IN_PICTURE_SUPPORTED from '@environment/documentPictureInPictureSupport';
 import openClientPip, {closeClientPip, isClientPipOpen} from '@components/clientPip';
 import liteMode from '@helpers/liteMode';
@@ -991,9 +991,17 @@ export class AppSidebarLeft extends SidebarSlider {
       text: 'PWA.Install',
       onClick: () => {
         const installPrompt = getInstallPrompt();
-        installPrompt?.();
+        if(installPrompt) {
+          installPrompt();
+        } else if(canShowIOSInstallInstructions()) {
+          confirmationPopup({
+            titleLangKey: 'PWA.Install',
+            descriptionLangKey: 'PWA.Install.IOSInstructions',
+            button: {langKey: 'OK'}
+          });
+        }
       },
-      verify: () => !!getInstallPrompt()
+      verify: () => !!getInstallPrompt() || canShowIOSInstallInstructions()
     }, {
       icon: 'pip',
       // The More submenu is rebuilt on every open (createMoreSubmenu runs per open), so reading the live
