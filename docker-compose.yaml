@@ -22,8 +22,6 @@ services:
   tweb.production:
     container_name: tweb.production
     restart: unless-stopped
-    build:
-      context: .
-      dockerfile: .docker/Dockerfile_production
+    image: telegram-k-tweb.production:latest
     ports:
       - 127.0.0.1:8080:80
