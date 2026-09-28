@@ -12,6 +12,7 @@ import {delegateEvents, render} from 'solid-js/web';
 import {MOUNT_CLASS_TO} from '@config/debug';
 import {logger} from '@lib/logger';
 import ClientPipPlaceholder from '@components/clientPipPlaceholder';
+import './clientPip.scss';
 
 const log = logger('CLIENT-PIP');
 
@@ -24,6 +25,7 @@ const PIP_HEIGHT = 760;
 
 type PipState = {
   pipWindow: Window,
+  appRoot: HTMLElement,
   moved: {node: Element, placeholder: Comment}[],
   placeholderScreen: HTMLElement,
   disposePlaceholder: () => void,
@@ -53,7 +55,7 @@ export function moveAppToWindow(pipWindow: Window, onReturn: () => void = moveAp
 
   // The pip document is bare — give html/body the resets the app shell expects to fill.
   const reset = doc.createElement('style');
-  reset.textContent = 'html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}';
+  reset.textContent = 'html,body{box-sizing:border-box;margin:0;padding:0;width:100%;height:100%;overflow:hidden}*,*::before,*::after{box-sizing:border-box}';
   doc.head.append(reset);
   doc.title = document.title;
 
@@ -75,6 +77,11 @@ export function moveAppToWindow(pipWindow: Window, onReturn: () => void = moveAp
     moved.push({node, placeholder});
   });
 
+  // The client PiP shares the live app instance, but it presents only the active chat. Keeping the
+  // desktop columns in #main-columns makes a wide PiP render the chat in the right-hand desktop
+  // column and leaves the left sidebar/list as a large empty region.
+  appRoot.classList.add('is-client-pip');
+
   // Solid delegates onClick/onInput/etc. to the MAIN document (`delegateEvents` defaults to
   // `window.document`), running ONE handler that walks up from the target to the node's `$$click`
   // prop. The moved nodes keep those props, but the handler isn't on the pip document — so every
@@ -89,7 +96,7 @@ export function moveAppToWindow(pipWindow: Window, onReturn: () => void = moveAp
   document.body.append(placeholderScreen);
   const disposePlaceholder = render(() => <ClientPipPlaceholder onReturn={onReturn} />, placeholderScreen);
 
-  state = {pipWindow, moved, placeholderScreen, disposePlaceholder, disposeStyles, cleanup: () => {}};
+  state = {pipWindow, appRoot, moved, placeholderScreen, disposePlaceholder, disposeStyles, cleanup: () => {}};
 
   // The wallpaper canvas/gradient renderer doesn't survive the cross-document move — rebuild it fresh
   // in the pip document.
@@ -101,7 +108,7 @@ export function moveAppToWindow(pipWindow: Window, onReturn: () => void = moveAp
 /** Move the client back into the main tab and tear down the pip plumbing. */
 export function moveAppBack(): void {
   if(!state) return;
-  const {pipWindow, moved, placeholderScreen, disposePlaceholder, disposeStyles, cleanup} = state;
+  const {pipWindow, appRoot, moved, placeholderScreen, disposePlaceholder, disposeStyles, cleanup} = state;
   const movedNodes = new Set(moved.map(({node}) => node));
   // Transient roots created while the app lives in Document PiP (popups,
   // menus, media editor, tooltips) were not part of the initial snapshot.
@@ -116,6 +123,7 @@ export function moveAppBack(): void {
   disposePlaceholder();
   placeholderScreen.remove();
   setAppWindow(window); // rebind metrics to the tab before the move so it reflows for the real viewport
+  appRoot.classList.remove('is-client-pip');
   moved.forEach(({node, placeholder}) => placeholder.replaceWith(node));
   transientNodes.forEach((node) => document.body.append(node));
 

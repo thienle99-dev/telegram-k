@@ -1,0 +1,64 @@
+#page-chats.is-client-pip {
+  --chat-width: 100%;
+  --chat-input-max-width: 100%;
+  --page-chats-padding: 0px;
+
+  position: fixed;
+  inset: 0;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#page-chats.is-client-pip > #main-columns {
+  position: relative;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+#page-chats.is-client-pip > #main-columns > #column-left,
+#page-chats.is-client-pip > #main-columns > #column-right {
+  display: none !important;
+}
+
+#page-chats.is-client-pip > #main-columns > #column-center {
+  position: absolute;
+  inset: 0;
+  display: flex !important;
+  grid-column: 1;
+  grid-row: 1;
+  width: auto;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  margin: 0;
+  overflow: hidden;
+  transform: none !important;
+  --page-chats-padding: 0px !important;
+}
+
+#page-chats.is-client-pip .chat.active {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+}
