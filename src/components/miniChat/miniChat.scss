@@ -9,7 +9,7 @@
   position: fixed;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  min-width: 0;
+  min-width: min(420px, calc(100vw - 32px));
   min-height: 0;
   max-width: min(520px, calc(100vw - 32px));
   max-height: 85vh;
@@ -18,6 +18,7 @@
   resize: none;
   box-sizing: border-box;
   container: mini-chat / inline-size;
+  font-size: clamp(.875rem, 3.5cqi, 1rem);
   border: 1px solid var(--border-color, rgba(0, 0, 0, .14));
   border-radius: 12px;
   background: var(--surface-color, var(--white));
@@ -110,6 +111,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  overflow-x: clip;
   border-radius: 0 0 12px 12px;
   font-size: clamp(.875rem, 3.5cqi, 1rem);
 }
@@ -118,24 +120,39 @@
   display: none !important;
 }
 
-.mini-chat-content > .bubbles {
+.mini-chat-content > .bubbles-viewport {
   position: relative;
   inset: auto;
   grid-row: 1;
   min-width: 0;
   min-height: 0;
   width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.mini-chat-content > .bubbles-viewport > .bubbles {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
   transform: none;
 }
 
 .mini-chat-content .bubbles-scrollable {
-  position: absolute;
+  position: relative;
   inset: 0;
+  width: 100%;
+  height: 100%;
   min-width: 0;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .mini-chat-content .bubbles-inner {
@@ -147,7 +164,7 @@
 
 .mini-chat-content .bubble {
   --max-width: 80%;
-  max-width: 80%;
+  max-width: min(80%, 100%);
   min-width: 0;
 }
 
@@ -157,6 +174,21 @@
   max-width: 100%;
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+.mini-chat-content .bubble a,
+.mini-chat-content .bubble pre,
+.mini-chat-content .bubble code,
+.mini-chat-content .bubble .text-content,
+.mini-chat-content .bubble .reply-wrapper {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.mini-chat-content .bubble pre {
+  white-space: pre-wrap;
 }
 
 .mini-chat-content .bubble img,
@@ -174,11 +206,13 @@
   min-width: 0;
   width: 100%;
   max-width: 100%;
+  overflow-x: hidden;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   box-sizing: border-box;
 }
 
 .mini-chat-content .chat-input-container,
+.mini-chat-content .chat-input-main-container,
 .mini-chat-content .chat-input-wrapper,
 .mini-chat-content .new-message-wrapper {
   min-width: 0;
@@ -193,6 +227,12 @@
   padding: clamp(.125rem, .75cqi, .25rem);
 }
 
+.mini-chat-content .chat-input-wrapper .btn-icon {
+  flex: 0 0 var(--button-size);
+  width: var(--button-size);
+  min-width: var(--button-size);
+}
+
 .mini-chat-content .input-message-container {
   min-width: 0;
   max-width: 100%;
@@ -200,6 +240,7 @@
 
 .mini-chat-content .input-message-input {
   min-width: 0;
+  max-width: 100%;
   overflow-wrap: anywhere;
 }
 
@@ -258,7 +299,47 @@
   border-radius: 0;
 }
 
+@media(max-width: 767px) {
+  .mini-chats-host {
+    display: block;
+  }
+
+  .mini-chat-window:not(.is-pip):not(.is-minimized) {
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-width: 0;
+    max-width: none;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .mini-chat-window:not(.is-pip):not(.is-minimized) .mini-chat-content {
+    border-radius: 0;
+  }
+
+  .mini-chat-window:not(.is-pip) .mini-chat-resize {
+    display: none;
+  }
+
+  .mini-chat-window.is-minimized:not(.is-pip) {
+    inset: auto 8px 8px auto !important;
+    width: min(320px, calc(100vw - 16px)) !important;
+    min-width: 0;
+    height: 44px !important;
+    max-width: none;
+    max-height: 44px;
+  }
+}
+
 @container mini-chat (max-width: 400px) {
+  .mini-chat-content {
+    font-size: clamp(.8125rem, 3.5cqi, .9375rem);
+  }
+
   .mini-chat-header {
     min-height: 40px;
     gap: 4px;
@@ -288,6 +369,10 @@
 }
 
 @container mini-chat (max-width: 340px) {
+  .mini-chat-content {
+    font-size: clamp(.8125rem, 3.2cqi, .875rem);
+  }
+
   .mini-chat-header {
     gap: 2px;
     padding-inline: 4px;
@@ -318,11 +403,5 @@
   .mini-chat-content .bubble {
     --max-width: 90%;
     max-width: 90%;
-  }
-}
-
-@media(max-width: 767px) {
-  .mini-chats-host {
-    display: none;
   }
 }

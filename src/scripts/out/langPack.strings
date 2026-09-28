@@ -348,6 +348,7 @@
 "Permissions.ExceptionsCount_other" = "%d exceptions";
 "Permissions.RemoveFromGroup" = "Are you sure you want to remove **%s** from the group?";
 "PWA.Install" = "Install App";
+"PWA.Install.IOSInstructions" = "In Safari, tap Share, then choose Add to Home Screen.";
 "PictureInPicture" = "Picture-in-Picture";
 "Link.Available" = "Link is available";
 "Link.Taken" = "Link is already taken";
@@ -432,6 +433,15 @@
 "OpenChatlist" = "VIEW CHAT LIST";
 "RemoveSharedFolder" = "Are you sure you want to delete this folder? This will also deactivate all the invite links created to share this folder.";
 "OpenInNewTab" = "Open in new tab";
+"MiniChat.Open" = "Open in Mini Chat";
+"MiniChat.Title" = "Mini chat";
+"MiniChat.Minimize" = "Minimize chat";
+"MiniChat.Restore" = "Restore mini chat";
+"MiniChat.OpenFull" = "Open in full chat";
+"MiniChat.PictureInPicture" = "Open mini chat in Picture-in-Picture";
+"MiniChat.Close" = "Close mini chat";
+"MiniChat.Resize" = "Resize mini chat";
+"MiniChat.NewMessages" = "New messages: %s";
 "Story" = "Story";
 "Stories" = "Stories";
 "StoriesCount_one" = "%1$d story";

@@ -5,7 +5,8 @@ export const MINI_CHAT_STORAGE_KEY = 'tweb-mini-chats-v1';
 export const MINI_CHAT_MAX_COUNT = 4;
 export const MINI_CHAT_MIN_WIDTH = 300;
 export const MINI_CHAT_MIN_HEIGHT = 260;
-export const MINI_CHAT_MIN_VIEWPORT_WIDTH = 768;
+export const MINI_CHAT_MIN_VIEWPORT_WIDTH = 320;
+export const MINI_CHAT_DESKTOP_VIEWPORT_WIDTH = 768;
 
 export function parseMiniChatState(value: string | null): MiniChatState[] {
   try {
@@ -29,7 +30,8 @@ export function isMiniChatViewportSupported(width: number) {
 }
 
 export function canOpenMiniChat(width: number, openCount: number) {
-  return isMiniChatViewportSupported(width) && openCount < MINI_CHAT_MAX_COUNT;
+  const maxCount = width < MINI_CHAT_DESKTOP_VIEWPORT_WIDTH ? 1 : MINI_CHAT_MAX_COUNT;
+  return isMiniChatViewportSupported(width) && openCount < maxCount;
 }
 
 export function clampMiniChatState(state: MiniChatState, viewportWidth: number, viewportHeight: number) {

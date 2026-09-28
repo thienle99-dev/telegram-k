@@ -24,9 +24,16 @@ describe('mini chat saved state', () => {
     expect(parseMiniChatState('invalid json')).toEqual([]);
   });
 
-  it('applies the desktop cutoff and four-window capacity', () => {
-    expect(isMiniChatViewportSupported(767)).toBe(false);
+  it('supports mobile viewports and limits them to one full-screen chat', () => {
+    expect(isMiniChatViewportSupported(319)).toBe(false);
+    expect(isMiniChatViewportSupported(320)).toBe(true);
+    expect(isMiniChatViewportSupported(767)).toBe(true);
     expect(isMiniChatViewportSupported(768)).toBe(true);
+    expect(canOpenMiniChat(375, 0)).toBe(true);
+    expect(canOpenMiniChat(375, 1)).toBe(false);
+  });
+
+  it('allows up to four resizable chats on desktop', () => {
     expect(canOpenMiniChat(1200, 3)).toBe(true);
     expect(canOpenMiniChat(1200, 4)).toBe(false);
   });
