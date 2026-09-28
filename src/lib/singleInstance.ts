@@ -25,7 +25,7 @@ export type AppInstance = {
   accountNumber?: ActiveAccountNumber
 };
 
-export type InstanceDeactivateReason = 'version' | 'tabs' | 'otherClient';
+export type InstanceDeactivateReason = 'tabs' | 'otherClient';
 
 const CHECK_INSTANCE_INTERVAL = 5000;
 const DEACTIVATE_TIMEOUT = 30000;
@@ -158,18 +158,9 @@ export class SingleInstance extends EventListenerBase<{
       accountNumber: getCurrentAccount()
     };
 
-    const [curInstance, build = App.build] = await Promise.all([
-      sessionStorage.get('xt_instance', false),
-      sessionStorage.get('k_build', false)
-    ]);
+    const curInstance = await sessionStorage.get('xt_instance', false);
 
-    if(build > App.build) {
-      this.masterInstance = false;
-      rootScope.managers.all.networkerFactory.stopAll();
-      this.deactivateInstance('version');
-      apiManagerProxy.toggleStorages(false, false);
-      return;
-    } else if(IS_MULTIPLE_TABS_SUPPORTED) {
+    if(IS_MULTIPLE_TABS_SUPPORTED) {
       sessionStorage.set({xt_instance: newInstance});
       return;
     }

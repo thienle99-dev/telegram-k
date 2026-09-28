@@ -322,27 +322,7 @@ function setRootClasses() {
   document.documentElement.classList.add(...add);
 }
 
-let versionDeactivationHandled = false;
-
 function onInstanceDeactivated(reason: InstanceDeactivateReason) {
-  if(reason === 'version') {
-    if(versionDeactivationHandled) return;
-    versionDeactivationHandled = true;
-
-    const reloadKey = `tweb-version-reload-${App.build}`;
-    try {
-      if(window.sessionStorage.getItem(reloadKey) !== '1') {
-        window.sessionStorage.setItem(reloadKey, '1');
-        window.setTimeout(() => appNavigationController.reload(), 0);
-        return;
-      }
-    } catch(_err) {}
-  }
-
-  const onVersionClick = () => {
-    appNavigationController.reload();
-  };
-
   const onTabsClick = () => {
     document.body.classList.add('deactivated-backwards');
 
@@ -364,11 +344,6 @@ function onInstanceDeactivated(reason: InstanceDeactivateReason) {
     subtitle: LangPackKey,
     onClick: () => void
   }} = {
-    version: {
-      title: 'Deactivated.Version.Title',
-      subtitle: 'Deactivated.Version.Subtitle',
-      onClick: onVersionClick
-    },
     tabs: {
       title: 'Deactivated.Title',
       subtitle: 'Deactivated.Subtitle',
@@ -499,7 +474,7 @@ if(import.meta.env.DEV) {
   await singleInstance.start();
   console.timeLog(TIME_LABEL, 'singleInstance started');
 
-  const sendAllStatesPromise = singleInstance.deactivatedReason !== 'version' && apiManagerProxy.sendAllStates(allStates);
+  const sendAllStatesPromise = apiManagerProxy.sendAllStates(allStates);
   if(singleInstance.deactivatedReason) {
     onInstanceDeactivated(singleInstance.deactivatedReason);
   }
