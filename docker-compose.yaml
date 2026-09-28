@@ -22,6 +22,6 @@ services:
   tweb.production:
     container_name: tweb.production
     restart: unless-stopped
-    image: telegram-k-tweb.production:latest
+    image: ghcr.io/thienle99-dev/telegram-k:latest
     ports:
       - 127.0.0.1:8080:80
