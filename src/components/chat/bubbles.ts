@@ -1808,7 +1808,7 @@ export default class ChatBubbles {
     this.listenerSetter.add(container)('contextmenu', cancelPendingHiddenLinksEvent, {capture: true});
     this.listenerSetter.add(container)('dragstart', cancelPendingHiddenLinksEvent, {capture: true});
 
-    if(this.chat.isPreview) {
+    if(this.chat.isPreview && !this.chat.isMiniChat) {
       // Belt-and-suspenders: every other isPreview short-circuit in this file gates a
       // specific delegate (`onBubblesClick`, `readMessages`, …). Sponsored / menu / close
       // buttons inside bubbles bind their own listeners directly on their DOM and skip
@@ -2730,7 +2730,7 @@ export default class ChatBubbles {
       const fullMid = getBubbleFullMid(entry.target as HTMLElement);
       this.observer.unobserve(entry.target, this.viewsObserverCallback);
 
-      if(this.chat.isPreview) return;
+      if(this.chat.isPreview && !this.chat.isMiniChat) return;
 
       if(fullMid) {
         if(this.sponsoredMessagesMids.includes(fullMid)) {
@@ -2763,7 +2763,7 @@ export default class ChatBubbles {
 
     const bubble = entry.target as HTMLElement;
 
-    if(this.chat.isPreview || this.guestChatHintShown) { // once per chat-open (iOS hasDisplayedGuestChatMessageTooltip)
+    if((this.chat.isPreview && !this.chat.isMiniChat) || this.guestChatHintShown) { // once per chat-open (iOS hasDisplayedGuestChatMessageTooltip)
       this.observer.unobserve(bubble, this.guestChatHintObserverCallback);
       return;
     }
@@ -3363,7 +3363,7 @@ export default class ChatBubbles {
   }
 
   private readUnreaded(type: 'history' | 'content') {
-    if(this.chat.isPreview) return;
+    if(this.chat.isPreview && !this.chat.isMiniChat) return;
     const readPromiseKey = type === 'history' ? 'readPromise' : 'readContentPromise';
     if(this[readPromiseKey]) return;
 
@@ -3440,7 +3440,7 @@ export default class ChatBubbles {
     // Previews are read-only — no media open, no jump-to-reply, no link follow, no
     // context menu. Belt-and-suspenders to the CSS `pointer-events: none` we put on
     // `.bubble` for preview mode.
-    if(this.chat.isPreview) return;
+    if(this.chat.isPreview && !this.chat.isMiniChat) return;
     let target = e.target as HTMLElement;
     let bubble: HTMLElement = null, bubbleFullMid: FullMid;
     try {
@@ -6567,7 +6567,7 @@ export default class ChatBubbles {
   }
 
   public onScrolledAllDown() {
-    if(this.chat.isPreview) return;
+    if(this.chat.isPreview && !this.chat.isMiniChat) return;
     if(this.chat.type === ChatType.Chat || this.chat.type === ChatType.Discussion) {
       const {peerId, threadId, monoforumThreadId} = this.chat;
       const historyMaxId = this.chat.getHistoryMaxId();
@@ -7454,7 +7454,7 @@ export default class ChatBubbles {
   }
 
   private setUnreadObserver(type: 'history' | 'content', bubble: HTMLElement, mid?: number, element: HTMLElement = bubble) {
-    if(this.chat.isPreview) return;
+    if(this.chat.isPreview && !this.chat.isMiniChat) return;
     mid ??= (bubble as any).maxBubbleMid;
     // registration always happens while rendering the current chat, so this snapshot is the
     // authoritative owner of every mid in the unreaded maps/sets
@@ -9062,7 +9062,7 @@ export default class ChatBubbles {
         this.observer.observe(bubble, this.viewsObserverCallback);
 
         // Engagement metrics only for the main channel feed (not preview/pinned/search/scheduled views).
-        if(this.chat.type === ChatType.Chat && !this.chat.isPreview) {
+        if(this.chat.type === ChatType.Chat && (!this.chat.isPreview || this.chat.isMiniChat)) {
           this.observer.observe(bubble, this.readMetricsObserverCallback);
         }
       }

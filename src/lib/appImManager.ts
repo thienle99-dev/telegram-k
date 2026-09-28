@@ -378,6 +378,7 @@ export class AppImManager extends EventListenerBase<{
 
     this.createNewChat();
     this.chatsSelectTab(this.chat);
+    import('@components/miniChat/manager').then(({restoreMiniChats}) => restoreMiniChats(this.managers));
 
     appNavigationController.onHashChange = this.onHashChange;
     // window.addEventListener('hashchange', this.onHashChange);

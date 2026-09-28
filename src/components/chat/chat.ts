@@ -129,6 +129,9 @@ export default class Chat extends EventListenerBase<{
    */
   public isPreview: boolean;
 
+  /** A floating, interactive chat. It shares the preview header lifecycle but keeps normal chat side effects. */
+  public isMiniChat: boolean;
+
   /**
    * Set by the preview popup before `setPeer` so the topbar's close button (rendered with a
    * `close` icon instead of `back` in preview mode) tears down the popup instead of running
@@ -357,7 +360,7 @@ export default class Chat extends EventListenerBase<{
     // plate's inner edge sits at 56px (3rem + 0.5rem). Collapse both spacers to sit flush
     // (= --chat-padding-top / --chat-padding-bottom) instead of the wider desktop gap. Kept
     // in sync across mobile<->desktop transitions by the 'changeScreen' listener in init().
-    const collapse = this.isPreview || mediaSizes.isMobile;
+    const collapse = (this.isPreview && !this.isMiniChat) || mediaSizes.isMobile;
     const topBase = collapse ? 3.5 : 4.5;
     const bottomBase = collapse ? 3.5 : 4;
     const top = Math.round(topBase * rem + this.pinnedFloatingHeightPx);
@@ -596,7 +599,7 @@ export default class Chat extends EventListenerBase<{
   }
 
   private handleBackgrounds() {
-    if(this.type === ChatType.Stories || this.isPreview) {
+    if(this.type === ChatType.Stories || (this.isPreview && !this.isMiniChat)) {
       return Promise.resolve(noop);
     }
 
@@ -659,7 +662,7 @@ export default class Chat extends EventListenerBase<{
       this.recomputePaddings();
     });
 
-    if(!this.isPreview) {
+    if(!this.isPreview && !this.isMiniChat) {
       // Preview popup owns its own lifecycle — these callbacks talk to the main appImManager
       // and would close the *real* chat behind the popup if the previewed dialog got dropped.
       this.bubbles.listenerSetter.add(rootScope)('dialog_drop', (dialog) => {

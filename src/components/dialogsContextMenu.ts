@@ -200,6 +200,14 @@ export default class DialogsContextMenu {
       },
       verify: () => this.isCommunityDialog
     }, {
+      icon: 'message',
+      text: 'MiniChat.Open',
+      onClick: async() => {
+        const {openMiniChat} = await import('@components/miniChat/manager');
+        openMiniChat(this.peerId, this.managers, this.li);
+      },
+      verify: () => this.canOpenMiniChat()
+    }, {
       icon: 'eye',
       text: 'ChatList.Context.Preview',
       onClick: this.onPreviewClick,
@@ -613,6 +621,14 @@ export default class DialogsContextMenu {
       anchor: chatPreviewAnchorFromDialogRow(this.li)
     });
   };
+
+  private canOpenMiniChat() {
+    if(!this.dialog || this.threadId || this.monoforumParentPeerId || this.communityId || this.isCommunityDialog) return false;
+    if(this.peerId.isUser()) return this.peerId !== rootScope.myId;
+    if(!this.peerId.isAnyChat() || apiManagerProxy.isForum(this.peerId) || apiManagerProxy.isBotforum(this.peerId)) return false;
+    const peer = apiManagerProxy.getChat(this.peerId.toChatId());
+    return !!peer && (peer._ === 'chat' || (peer._ === 'channel' && !peer.pFlags.broadcast));
+  }
 
   private onUnreadClick = async() => {
     const {peerId, dialog} = this;
