@@ -1,0 +1,20 @@
+.popup-gift-link {
+  --link-color: var(--primary-color);
+  word-break: break-word;
+
+  &-wrapper {
+    padding: 0 1rem;
+  }
+
+  &-share {
+    text-align: center;
+  }
+
+  &-table {
+    margin: 1rem 0;
+  }
+
+  .invite-link-container {
+    padding: 0;
+  }
+}

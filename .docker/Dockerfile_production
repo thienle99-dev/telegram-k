@@ -1,0 +1,27 @@
+# Base image
+FROM node:24 AS tweb-build
+
+# Set the working directory in the container
+WORKDIR /app
+
+# copy src
+COPY . .
+
+# install pnpm
+RUN npm install -g pnpm@11.16.0
+
+# Install the full toolchain in this build-only stage.
+RUN pnpm install
+
+# Build the frontend with same-origin Telegram transport URLs.
+ENV VITE_MTPROTO_SAME_ORIGIN_PROXY=1
+RUN node build
+
+
+#pull nginx as webser and load balancer
+FROM nginx:stable-alpine3.20-slim
+
+RUN apk update && apk upgrade --no-cache
+
+# copy the build files to nginx entry point
+COPY --from=tweb-build /app/public /usr/share/nginx/html

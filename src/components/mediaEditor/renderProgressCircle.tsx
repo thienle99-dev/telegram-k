@@ -1,0 +1,35 @@
+import {Signal} from 'solid-js';
+import {ProgressCircleSVG} from '@components/progressCircleSVG';
+import I18n from '@lib/langPack';
+
+export default function RenderProgressCircle(props: {creationProgress: Signal<number>}) {
+  const [progress] = props.creationProgress;
+
+  return (
+    <div
+      role="progressbar"
+      aria-label={I18n.format('Loading', true)}
+      aria-valuenow={Math.round(progress() * 100)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      style={{
+        display: 'flex',
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '64px',
+        ...{
+          'background-color': 'rgba(0, 0, 0, .25)',
+          'border-radius': '64px',
+          'max-width': '80%',
+          'max-height': '80%',
+          'aspect-ratio': '1 / 1',
+          'z-index': 2
+        }
+      }}
+    >
+      <ProgressCircleSVG progress={progress()} strokeThickness={1 / 10} withText stroke='white' />
+    </div>
+  );
+}
