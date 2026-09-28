@@ -1,4 +1,4 @@
-name: Deploy to self-hosted runner
+name: Build and push production image
 
 on:
   push:
@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build-push:
     runs-on: self-hosted
     steps:
       - name: Check out repository
@@ -31,25 +31,7 @@ jobs:
           registry_image="$(printf '%s' "$REGISTRY_IMAGE" | tr '[:upper:]' '[:lower:]')"
           image="$registry_image:$IMAGE_TAG"
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "$REGISTRY_USER" --password-stdin
+          export DOCKER_BUILDKIT=1
           docker build -f .docker/Dockerfile_production -t "$image" -t "$registry_image:latest" .
           docker push "$image"
           docker push "$registry_image:latest"
-          echo "TWEB_IMAGE=$image" >> "$GITHUB_ENV"
-
-      - name: Pull and run the versioned image
-        run: |
-          docker pull "$TWEB_IMAGE"
-          TWEB_IMAGE="$TWEB_IMAGE" docker compose up -d --no-build --no-deps tweb.production
-
-      - name: Verify production service
-        run: |
-          for attempt in $(seq 1 30); do
-            if curl --fail --silent --show-error http://127.0.0.1:8080/ > /dev/null; then
-              echo "Production service is responding on http://127.0.0.1:8080/"
-              exit 0
-            fi
-            sleep 2
-          done
-          docker compose ps tweb.production
-          docker compose logs --tail=100 tweb.production
-          exit 1

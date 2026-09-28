@@ -1,17 +1,22 @@
+# syntax=docker/dockerfile:1.7
+
 # Base image
 FROM node:24 AS tweb-build
 
 # Set the working directory in the container
 WORKDIR /app
 
-# copy src
-COPY . .
-
 # install pnpm
 RUN npm install -g pnpm@11.16.0
 
-# Install the full toolchain in this build-only stage.
-RUN pnpm install
+# Keep dependency installation cached until a dependency manifest changes.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN --mount=type=cache,id=tweb-pnpm-store-v11,target=/root/.local/share/pnpm/store,sharing=locked \
+  pnpm install --frozen-lockfile
+
+# Copy source only after dependencies are installed so normal source edits reuse
+# the pnpm install layer and its package store.
+COPY . .
 
 # Build the frontend with same-origin Telegram transport URLs.
 ENV VITE_MTPROTO_SAME_ORIGIN_PROXY=1
