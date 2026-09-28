@@ -1,0 +1,40 @@
+name: Deploy to self-hosted runner
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: self-hosted-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build production image from this checkout
+        run: docker compose build tweb.production
+
+      - name: Run the image built from this checkout
+        run: docker compose up -d --no-build --no-deps tweb.production
+
+      - name: Verify production service
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error http://127.0.0.1:8080/ > /dev/null; then
+              echo "Production service is responding on http://127.0.0.1:8080/"
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose ps tweb.production
+          docker compose logs --tail=100 tweb.production
+          exit 1
