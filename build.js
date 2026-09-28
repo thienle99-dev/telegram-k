@@ -214,6 +214,7 @@ formatLang()
   child.on('close', (code) => {
     if(code != 0) {
       console.error(error, `build child process exited with code ${code}`);
+      process.exitCode = code || 1;
     } else {
       onCompiled();
     }
