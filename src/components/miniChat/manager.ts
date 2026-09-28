@@ -28,7 +28,7 @@ class MiniChatManager {
     rootScope.addEventListener('peer_deleted', this.onPeerDeleted);
   }
 
-  public open(peerId: PeerId, managers: AppManagers, opener?: HTMLElement) {
+  public open(peerId: PeerId | undefined, managers: AppManagers, opener?: HTMLElement) {
     this.managers = managers;
     if(!isMiniChatViewportSupported(window.innerWidth) || !this.isSupported(peerId)) return;
     this.restore(managers);
@@ -73,7 +73,8 @@ class MiniChatManager {
     });
   }
 
-  private isSupported(peerId: PeerId) {
+  private isSupported(peerId: PeerId | undefined): peerId is PeerId {
+    if(typeof peerId !== 'number' || !Number.isSafeInteger(peerId) || peerId === 0) return false;
     if(peerId.isUser()) return peerId !== rootScope.myId;
     if(!peerId.isAnyChat() || apiManagerProxy.isForum(peerId) || apiManagerProxy.isBotforum(peerId)) return false;
     const peer = apiManagerProxy.getChat(peerId.toChatId());
@@ -342,7 +343,8 @@ class MiniChatManager {
 
 let manager: MiniChatManager;
 
-export function openMiniChat(peerId: PeerId, managers: AppManagers, opener?: HTMLElement) {
+export function openMiniChat(peerId: PeerId | undefined, managers: AppManagers, opener?: HTMLElement) {
+  if(typeof peerId !== 'number' || !Number.isSafeInteger(peerId) || peerId === 0) return;
   manager ||= new MiniChatManager();
   manager.open(peerId, managers, opener);
 }

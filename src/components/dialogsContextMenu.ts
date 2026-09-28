@@ -203,8 +203,10 @@ export default class DialogsContextMenu {
       icon: 'message',
       text: 'MiniChat.Open',
       onClick: async() => {
+        const peerId = this.peerId;
+        if(!peerId) return;
         const {openMiniChat} = await import('@components/miniChat/manager');
-        openMiniChat(this.peerId, this.managers, this.li);
+        openMiniChat(peerId, this.managers, this.li);
       },
       verify: () => this.canOpenMiniChat()
     }, {
@@ -623,7 +625,7 @@ export default class DialogsContextMenu {
   };
 
   private canOpenMiniChat() {
-    if(!this.dialog || this.threadId || this.monoforumParentPeerId || this.communityId || this.isCommunityDialog) return false;
+    if(!this.peerId || !this.dialog || this.threadId || this.monoforumParentPeerId || this.communityId || this.isCommunityDialog) return false;
     if(this.peerId.isUser()) return this.peerId !== rootScope.myId;
     if(!this.peerId.isAnyChat() || apiManagerProxy.isForum(this.peerId) || apiManagerProxy.isBotforum(this.peerId)) return false;
     const peer = apiManagerProxy.getChat(this.peerId.toChatId());

@@ -12,7 +12,8 @@ const mocks = vi.hoisted(() => ({
   isDialogUnread: vi.fn(),
   isPeerLocalMuted: vi.fn(),
   getDialogFilters: vi.fn(),
-  getDeleteButtonText: vi.fn()
+  getDeleteButtonText: vi.fn(),
+  openMiniChat: vi.fn()
 }));
 
 vi.mock('@helpers/dom/createContextMenu', () => ({
@@ -84,6 +85,7 @@ vi.mock('@components/communities/leaveCommunity', () => ({
   canLeaveCommunity: () => true
 }));
 vi.mock('@components/clearHistory', () => ({default: vi.fn()}));
+vi.mock('@components/miniChat/manager', () => ({openMiniChat: mocks.openMiniChat}));
 
 import DialogsContextMenu from '@components/dialogsContextMenu';
 import appDialogsManager from '@lib/appDialogsManager';
@@ -210,6 +212,15 @@ describe('DialogsContextMenu on a Community chat row', () => {
       'ClearHistory',
       'Delete'
     ]);
+  });
+
+  it('opens the selected peer in a mini chat', async() => {
+    const row = makeRow({peerId});
+    const buttons = await openMenu(row);
+
+    await buttons.find((button) => button.text === 'MiniChat.Open').onClick();
+
+    expect(mocks.openMiniChat).toHaveBeenCalledWith(peerId, managers, row);
   });
 
   it('can remove a recent search peer even when it has no dialog', async() => {
