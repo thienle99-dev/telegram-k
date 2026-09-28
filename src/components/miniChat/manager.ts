@@ -49,8 +49,7 @@ class MiniChatManager {
       existing.state.minimized = false;
       existing.element.hidden = false;
       existing.element.classList.remove('is-minimized');
-      this.activate(existing.element);
-      this.save();
+      void this.openInWindow(existing);
       return;
     }
     if(!canOpenMiniChat(window.innerWidth, this.entries.size)) return;
@@ -62,7 +61,8 @@ class MiniChatManager {
       height: 650,
       minimized: false
     };
-    this.mount(state, managers, opener);
+    const entry = this.mount(state, managers, opener);
+    void this.openInWindow(entry);
   }
 
   public restoreOnStart(managers: AppManagers) {
@@ -93,7 +93,7 @@ class MiniChatManager {
     return !!peer && (peer._ === 'chat' || (peer._ === 'channel' && !peer.pFlags.broadcast));
   }
 
-  private mount(state: MiniChatState, managers: AppManagers, opener?: HTMLElement) {
+  private mount(state: MiniChatState, managers: AppManagers, opener?: HTMLElement): MiniChatEntry {
     const element = document.createElement('section');
     element.className = 'mini-chat-window detached-chat-window';
     element.setAttribute('aria-label', i18n('MiniChat.Title').textContent);
@@ -162,6 +162,7 @@ class MiniChatManager {
     });
     if(!state.minimized) this.activate(element);
     this.save();
+    return entry;
   }
 
   private button(key: LangPackKey, text: string, action: () => void) {
