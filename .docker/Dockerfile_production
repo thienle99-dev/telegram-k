@@ -22,6 +22,7 @@ COPY . .
 ENV VITE_MTPROTO_SAME_ORIGIN_PROXY=1
 RUN pnpm run typecheck \
   && pnpm run generate-changelog \
+  && pnpm run build:solid \
   && pnpm exec vite build \
   && pnpm run check-bundle
 
