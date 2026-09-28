@@ -308,8 +308,39 @@
   box-shadow: none;
 }
 
+.mini-chat-window.is-pip > .mini-chat-header {
+  min-height: 56px;
+  padding-inline: 12px;
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, .06));
+}
+
+.mini-chat-window.is-pip .mini-chat-avatar {
+  flex-basis: 38px;
+  width: 38px;
+  height: 38px;
+}
+
 .mini-chat-window.is-pip .mini-chat-content {
   border-radius: 0;
+}
+
+@media(max-width: 380px) {
+  .mini-chat-window.is-pip > .mini-chat-header {
+    min-height: 50px;
+    padding-inline: 8px;
+  }
+
+  .mini-chat-window.is-pip .mini-chat-content .bubble {
+    --max-width: 88%;
+    max-width: 88%;
+  }
+}
+
+@media(max-width: 320px) {
+  .mini-chat-window.is-pip .mini-chat-content .bubble {
+    --max-width: 92%;
+    max-width: 92%;
+  }
 }
 
 @media(max-width: 767px) {
