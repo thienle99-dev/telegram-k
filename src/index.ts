@@ -322,7 +322,23 @@ function setRootClasses() {
   document.documentElement.classList.add(...add);
 }
 
+let versionDeactivationHandled = false;
+
 function onInstanceDeactivated(reason: InstanceDeactivateReason) {
+  if(reason === 'version') {
+    if(versionDeactivationHandled) return;
+    versionDeactivationHandled = true;
+
+    const reloadKey = `tweb-version-reload-${App.build}`;
+    try {
+      if(window.sessionStorage.getItem(reloadKey) !== '1') {
+        window.sessionStorage.setItem(reloadKey, '1');
+        window.setTimeout(() => appNavigationController.reload(), 0);
+        return;
+      }
+    } catch(_err) {}
+  }
+
   const onVersionClick = () => {
     appNavigationController.reload();
   };
