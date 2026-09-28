@@ -56,10 +56,10 @@ class MiniChatManager {
     if(!canOpenMiniChat(window.innerWidth, this.entries.size)) return;
     const state: MiniChatState = {
       peerId,
-      left: Math.max(16, window.innerWidth - 380 - this.entries.size * 24),
+      left: Math.max(16, window.innerWidth - 520 - this.entries.size * 24),
       top: Math.max(16, window.innerHeight - 520 - this.entries.size * 24),
-      width: 340,
-      height: 480,
+      width: 480,
+      height: 650,
       minimized: false
     };
     this.mount(state, managers, opener);
@@ -307,14 +307,14 @@ class MiniChatManager {
     if(DOCUMENT_PICTURE_IN_PICTURE_SUPPORTED && documentPip && !documentPip.window) {
       try {
         // requestWindow is called synchronously from the header button's click handler.
-        pipWindow = await documentPip.requestWindow({width: 420, height: 650});
+        pipWindow = await documentPip.requestWindow({width: 480, height: 720});
       } catch(err) {
         log.error('Could not open the mini chat in Picture-in-Picture', err);
         return;
       }
     } else {
       // This fallback gets a separate resizable window, but browsers do not guarantee that it stays on top.
-      const fallbackWindow = window.open('', `tweb-mini-chat-${entry.state.peerId}`, 'popup,width=420,height=650,resizable=yes');
+      const fallbackWindow = window.open('', `tweb-mini-chat-${entry.state.peerId}`, 'popup,width=480,height=720,resizable=yes');
       if(!fallbackWindow) return;
       pipWindow = fallbackWindow;
     }
