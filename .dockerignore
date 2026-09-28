@@ -11,6 +11,7 @@ coverage
 test-results
 playwright-report
 blob-report
+# Keep the tracked root .env: build.js reads it while generating version metadata.
 .env.*
 ssh.json
 archive.zip
