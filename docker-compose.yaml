@@ -23,6 +23,7 @@ services:
   tweb.production:
     container_name: tweb.production
     restart: unless-stopped
+    image: ${TWEB_IMAGE:-telegram-web-k-tweb.production}
     build:
       context: .
       dockerfile: .docker/Dockerfile_production

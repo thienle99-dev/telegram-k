@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 concurrency:
   group: self-hosted-production-deploy
@@ -20,11 +21,25 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Build production image from this checkout
-        run: docker compose build tweb.production
+      - name: Build and push production image to GHCR
+        env:
+          REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
+          IMAGE_TAG: ${{ github.sha }}
+          REGISTRY_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          registry_image="$(printf '%s' "$REGISTRY_IMAGE" | tr '[:upper:]' '[:lower:]')"
+          image="$registry_image:$IMAGE_TAG"
+          echo "$GHCR_TOKEN" | docker login ghcr.io -u "$REGISTRY_USER" --password-stdin
+          docker build -f .docker/Dockerfile_production -t "$image" -t "$registry_image:latest" .
+          docker push "$image"
+          docker push "$registry_image:latest"
+          echo "TWEB_IMAGE=$image" >> "$GITHUB_ENV"
 
-      - name: Run the image built from this checkout
-        run: docker compose up -d --no-build --no-deps tweb.production
+      - name: Pull and run the versioned image
+        run: |
+          docker pull "$TWEB_IMAGE"
+          TWEB_IMAGE="$TWEB_IMAGE" docker compose up -d --no-build --no-deps tweb.production
 
       - name: Verify production service
         run: |
