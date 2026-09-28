@@ -79,9 +79,11 @@
 
 .mini-chat-control {
   display: grid;
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
   place-items: center;
   padding: 0;
   border: 0;
@@ -92,9 +94,16 @@
   font-size: 20px;
 }
 
-.mini-chat-control:hover,
+.mini-chat-control:hover {
+  background: rgba(var(--primary-color-rgb), .08);
+}
+
 .mini-chat-control:focus-visible {
   background: rgba(var(--primary-color-rgb), .12);
+}
+
+.mini-chat-control-icon {
+  font-size: 19px;
 }
 
 .mini-chat-content {
@@ -410,9 +419,9 @@
   }
 
   .mini-chat-control {
-    flex-basis: 30px;
-    width: 30px;
-    height: 30px;
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
   }
 
   .mini-chat-content .bubbles-inner {
@@ -442,9 +451,9 @@
   }
 
   .mini-chat-control {
-    flex-basis: 28px;
-    width: 28px;
-    height: 28px;
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
     font-size: 18px;
   }
 

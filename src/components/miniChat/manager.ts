@@ -5,6 +5,7 @@ import appImManager from '@lib/appImManager';
 import {i18n, LangPackKey} from '@lib/langPack';
 import getPeerTitle from '@components/wrappers/getPeerTitle';
 import {avatarNew} from '@components/avatarNew';
+import Icon from '@components/icon';
 import mediaSizes from '@helpers/mediaSizes';
 import {getMiddleware} from '@helpers/middleware';
 import mirrorDocumentStyles from '@helpers/dom/mirrorDocumentStyles';
@@ -112,10 +113,11 @@ class MiniChatManager {
     controls.className = 'mini-chat-controls';
     const minimize = this.button(state.minimized ? 'MiniChat.Restore' : 'MiniChat.Minimize', state.minimized ? '□' : '−', () => this.minimize(state.peerId));
     minimize.setAttribute('aria-expanded', String(!state.minimized));
-    const maximize = this.button('MiniChat.PictureInPicture', '↗', () => {
+    const maximize = this.button('MiniChat.PictureInPicture', '', () => {
       const entry = this.entries.get(state.peerId);
       if(entry) void this.openInWindow(entry);
     });
+    maximize.append(Icon('pip_enter', 'mini-chat-control-icon'));
     const close = this.button('MiniChat.Close', '×', () => this.close(state.peerId));
     controls.append(minimize, maximize, close);
     const badge = document.createElement('span');
