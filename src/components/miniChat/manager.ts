@@ -106,6 +106,7 @@ class MiniChatManager {
 
     const header = document.createElement('header');
     header.className = 'mini-chat-header';
+    header.id = `mini-chat-header-${state.peerId}`;
     const avatarMiddleware = getMiddleware();
     const avatar = avatarNew({peerId: state.peerId, size: 40, middleware: avatarMiddleware.get(), isDialog: true});
     avatar.node.classList.add('mini-chat-avatar');
@@ -123,13 +124,26 @@ class MiniChatManager {
     maximize.append(Icon('pip_enter', 'mini-chat-control-icon'));
     const close = this.button('MiniChat.Close', '×', () => this.close(state.peerId));
     controls.append(minimize, maximize, close);
+    const toggleHeader = document.createElement('button');
+    toggleHeader.type = 'button';
+    toggleHeader.className = 'mini-chat-header-toggle';
+    toggleHeader.textContent = '⋯';
+    toggleHeader.setAttribute('aria-label', 'Show chat header');
+    toggleHeader.setAttribute('aria-controls', header.id);
+    toggleHeader.hidden = true;
+    toggleHeader.addEventListener('click', () => {
+      const isHidden = element.classList.toggle('is-header-hidden');
+      toggleHeader.hidden = !isHidden;
+      header.hidden = isHidden;
+      toggleHeader.setAttribute('aria-label', isHidden ? 'Show chat header' : 'Hide chat header');
+    });
     const badge = document.createElement('span');
     badge.className = 'mini-chat-badge';
     badge.hidden = true;
     badge.setAttribute('role', 'status');
     badge.setAttribute('aria-live', 'polite');
     header.append(avatar.node, title, badge, controls);
-    element.append(header);
+    element.append(header, toggleHeader);
 
     const chat = new Chat(appImManager, managers, false, {sharedMedia: true});
     chat.isPreview = true;
