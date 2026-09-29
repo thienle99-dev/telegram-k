@@ -312,7 +312,7 @@
   margin: 0 !important;
   padding: 0 !important;
   transform: none !important;
-  grid-template-rows: 48px minmax(0, 1fr);
+  grid-template-rows: 24px minmax(0, 1fr);
   width: 100% !important;
   max-width: none !important;
   height: 100vh !important;
@@ -327,10 +327,14 @@
 
 .mini-chat-window.is-pip > .mini-chat-header {
   min-height: 0;
-  height: 48px;
-  padding: 4px 8px;
+  height: 24px;
+  padding: 0 8px;
   gap: 6px;
   border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, .08));
+}
+
+.mini-chat-window.is-pip .mini-chat-controls {
+  display: none;
 }
 
 .mini-chat-header-toggle {
@@ -369,9 +373,7 @@
 }
 
 .mini-chat-window.is-pip .mini-chat-avatar {
-  flex-basis: 32px;
-  width: 32px;
-  height: 32px;
+  display: none;
 }
 
 .mini-chat-window.is-pip .mini-chat-title {
@@ -412,6 +414,8 @@
 .mini-chat-window.is-pip .mini-chat-content .bubbles-group-avatar-container .bubbles-group-avatar {
   width: 26px;
   height: 26px;
+  min-width: 26px;
+  min-height: 26px;
 }
 
 .mini-chat-window.is-pip .mini-chat-content .bubbles-inner {
@@ -476,12 +480,12 @@
 
 @media(max-width: 380px) {
   .mini-chat-window.is-pip {
-    grid-template-rows: 48px minmax(0, 1fr);
+    grid-template-rows: 24px minmax(0, 1fr);
   }
 
   .mini-chat-window.is-pip > .mini-chat-header {
-    height: 48px;
-    padding: 4px 8px;
+    height: 24px;
+    padding: 0 8px;
   }
 
   .mini-chat-window.is-pip .mini-chat-avatar {

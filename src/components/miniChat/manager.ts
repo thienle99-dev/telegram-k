@@ -343,7 +343,7 @@ class MiniChatManager {
     const disposeStyles = mirrorDocumentStyles(document, pipDocument);
     pipDocument.title = entry.title.textContent || i18n('MiniChat.Title').textContent;
     const reset = pipDocument.createElement('style');
-    reset.textContent = 'html,body{box-sizing:border-box;margin:0;padding:0;width:100%;height:100%;overflow:hidden}*,*::before,*::after{box-sizing:border-box}';
+    reset.textContent = 'html,body{box-sizing:border-box;margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:var(--body-background-color,var(--surface-color,#fff))}body{background-color:var(--body-background-color,var(--surface-color,#fff))}*,*::before,*::after{box-sizing:border-box}';
     pipDocument.head.append(reset);
 
     this.updateState(entry.element);
