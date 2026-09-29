@@ -1,5 +1,4 @@
 import pause from '@helpers/schedulers/pause';
-import textToSvgURL from '@helpers/textToSvgURL';
 
 /**
  * Builds a Telegram-styled QR canvas for `data` using the supplied palette.
@@ -20,8 +19,10 @@ export type PaintQrOptions = {
   background: string;
   /** Dot color — the "ink" of the QR code. */
   foreground: string;
-  /** Color used to tint the embedded Telegram logo. */
-  logoColor: string;
+  /** @deprecated Use image instead. Retained for the profile QR caller. */
+  logoColor?: string;
+  /** Optional center mark. Omit it for unbranded QR codes. */
+  image?: string;
   /**
    * Device-pixel multiplier for the rendered QR bitmap. Defaults to the screen
    * DPR. The My QR popup passes max(screenDPR, 3) so the QR stays crisp in its
@@ -39,35 +40,21 @@ export type PaintQrOptions = {
   QRCodeStylingCtor: any;
 };
 
-// The Telegram logo SVG is identical for a given tint every paint; fetch +
-// recolor + data-URL it once per colour instead of on every QR regenerate.
-const logoUrlCache = new Map<string, Promise<string>>();
-function getLogoUrl(logoColor: string): Promise<string> {
-  let url = logoUrlCache.get(logoColor);
-  if(!url) {
-    url = fetch('assets/img/logo_padded.svg')
-    .then((res) => res.text())
-    .then((text) => textToSvgURL(text.replace(/(fill:).+?(;)/, `$1${logoColor}$2`)));
-    logoUrlCache.set(logoColor, url);
-  }
-  return url;
-}
-
 export async function paintQrCode(options: PaintQrOptions) {
-  const {data, size, host, background, foreground, logoColor, pixelRatio = window.devicePixelRatio, QRCodeStylingCtor} = options;
+  const {data, size, host, background, foreground, image, pixelRatio = window.devicePixelRatio, QRCodeStylingCtor} = options;
 
-  const logoUrl = await getLogoUrl(logoColor);
+  const mark = image || (options.logoColor ? await getLegacyTelegramMark(options.logoColor) : undefined);
 
   const qrCode = new QRCodeStylingCtor({
     width: size * pixelRatio,
     height: size * pixelRatio,
     data,
-    image: logoUrl,
+    image: mark,
     dotsOptions: {color: foreground, type: 'rounded'},
     cornersSquareOptions: {type: 'extra-rounded', color: foreground},
-    imageOptions: {imageSize: 1, margin: 0},
+    imageOptions: {imageSize: .18, margin: 0},
     backgroundOptions: {color: background},
-    qrOptions: {errorCorrectionLevel: 'L'}
+    qrOptions: {errorCorrectionLevel: image ? 'H' : 'M'}
   });
 
   qrCode.append(host);
@@ -99,6 +86,18 @@ export async function paintQrCode(options: PaintQrOptions) {
   await drawingPromise;
 
   return {canvas, qrCode};
+}
+
+const logoUrlCache = new Map<string, Promise<string>>();
+function getLegacyTelegramMark(color: string) {
+  let url = logoUrlCache.get(color);
+  if(!url) {
+    url = fetch('assets/img/logo_padded.svg')
+    .then((res) => res.text())
+    .then((text) => `data:image/svg+xml,${encodeURIComponent(text.replace(/(fill:).+?(;)/, `$1${color}$2`))}`);
+    logoUrlCache.set(color, url);
+  }
+  return url;
 }
 
 /**
