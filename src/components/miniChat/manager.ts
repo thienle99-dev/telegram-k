@@ -342,9 +342,9 @@ class MiniChatManager {
     const pipDocument = pipWindow.document;
     const disposeStyles = mirrorDocumentStyles(document, pipDocument);
     pipDocument.title = entry.title.textContent || i18n('MiniChat.Title').textContent;
-    const pipBackground = getComputedStyle(document.body).backgroundColor || getComputedStyle(document.body).color;
-    pipDocument.documentElement.style.backgroundColor = pipBackground;
-    pipDocument.body.style.backgroundColor = pipBackground;
+    const pipBackground = getComputedStyle(document.documentElement).getPropertyValue('--body-background-color').trim() || '#fff';
+    pipDocument.documentElement.style.setProperty('background-color', pipBackground, 'important');
+    pipDocument.body.style.setProperty('background-color', pipBackground, 'important');
     const reset = pipDocument.createElement('style');
     reset.textContent = 'html,body{box-sizing:border-box;margin:0;padding:0;width:100%;height:100%;min-height:100%;overflow:hidden}*,*::before,*::after{box-sizing:border-box}';
     pipDocument.head.append(reset);
@@ -354,7 +354,7 @@ class MiniChatManager {
     const focusTarget = document.activeElement instanceof HTMLElement ? document.activeElement : undefined;
     entry.element.before(placeholder);
     entry.element.classList.add('is-pip');
-    entry.element.style.backgroundColor = getComputedStyle(entry.element).backgroundColor;
+    entry.element.style.setProperty('background-color', pipBackground, 'important');
     pipDocument.body.append(entry.element);
 
     const delegatedEvents = (document as Document & {'_$DX_DELEGATE'?: Set<string>})['_$DX_DELEGATE'];

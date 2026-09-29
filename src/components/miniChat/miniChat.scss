@@ -418,6 +418,14 @@
   min-height: 26px;
 }
 
+.mini-chat-window.is-pip .mini-chat-content .bubbles-group-avatar-container .avatar-photo {
+  width: 26px !important;
+  height: 26px !important;
+  max-width: 26px;
+  max-height: 26px;
+  object-fit: cover;
+}
+
 .mini-chat-window.is-pip .mini-chat-content .bubbles-inner {
   --pip-message-gap: 7px;
   padding-inline: 8px;
