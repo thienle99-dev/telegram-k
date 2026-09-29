@@ -29,6 +29,7 @@ class MiniChatManager {
   private host = document.createElement('div');
   private zIndex = 500;
   private restored = false;
+  private dismissedPipPeers = new Set<PeerId>();
   private managers: AppManagers;
 
   constructor() {
@@ -47,12 +48,14 @@ class MiniChatManager {
     this.restore(managers);
     const existing = this.entries.get(peerId);
     if(existing) {
+      const pipWasDismissed = this.dismissedPipPeers.delete(peerId);
       existing.state.minimized = false;
       existing.element.hidden = false;
       existing.element.classList.remove('is-minimized');
-      void this.openInWindow(existing);
+      if(!pipWasDismissed) void this.openInWindow(existing);
       return;
     }
+    this.dismissedPipPeers.delete(peerId);
     if(!canOpenMiniChat(window.innerWidth, this.entries.size)) return;
     const state: MiniChatState = {
       peerId,
@@ -341,7 +344,10 @@ class MiniChatManager {
 
     const onPageHide = () => {
       const session = this.floating;
-      if(session?.window === pipWindow) this.returnFromWindow(session);
+      if(session?.window === pipWindow) {
+        this.dismissedPipPeers.add(entry.state.peerId);
+        this.returnFromWindow(session);
+      }
     };
     this.floating = {window: pipWindow, entry, placeholder, disposeStyles, reset, onPageHide, focusTarget};
     pipWindow.addEventListener('pagehide', onPageHide);

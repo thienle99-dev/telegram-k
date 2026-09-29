@@ -4,8 +4,6 @@ import Button from '@components/buttonTsx';
 import LanguageChangeButton from '@components/languageChangeButton';
 import PasskeyLoginButton from '@components/passkeyLoginButton';
 import {putPreloader} from '@components/putPreloader';
-import MediaHeader from '@components/mediaHeader';
-import mediaHeaderStyles from '@components/mediaHeader.module.scss';
 import bytesCmp from '@helpers/bytes/bytesCmp';
 import bytesToBase64 from '@helpers/bytes/bytesToBase64';
 import fixBase64String from '@helpers/fixBase64String';
@@ -14,7 +12,7 @@ import {paintQrCode} from '@helpers/qrCode/paintQrCode';
 import type {DcId} from '@types';
 import {AuthAuthorization, AuthLoginToken} from '@layer';
 import App from '@config/app';
-import {LangPackKey, i18n} from '@lib/langPack';
+import {i18n} from '@lib/langPack';
 import AccountController from '@lib/accounts/accountController';
 import {getCurrentAccount} from '@lib/accounts/getCurrentAccount';
 import rootScope from '@lib/rootScope';
@@ -52,13 +50,18 @@ export default function SignQRCard(_props: {spec: Spec}) {
 
   /* ---------- description list ---------- */
 
-  const helpKeys: LangPackKey[] = ['Login.QR.Help1', 'Login.QR.Help2', 'Login.QR.Help3'];
+  const helpSteps = [
+    'Open Telegram on your phone',
+    'Open Settings, then Devices',
+    'Choose Link Desktop Device',
+    'Scan the code shown here'
+  ];
   const helpList = (
     <ol class={styles.qrDescription}>
-      {helpKeys.map((key, idx) => (
+      {helpSteps.map((step, idx) => (
         <li class={styles.qrDescriptionItem}>
           <span class={styles.qrDescriptionMarker}>{idx + 1}</span>
-          {i18n(key)}
+          {step}
         </li>
       ))}
     </ol>
@@ -219,33 +222,50 @@ export default function SignQRCard(_props: {spec: Spec}) {
   /* ---------- render ---------- */
 
   return (
-    <AuthCard
-      class={styles.pageSignQR}
-      inputWrapper={false}
-      header={
-        <MediaHeader>
-          <MediaHeader.Sticker ref={stickerHost} class={styles.qrContainer} size={QR_SIZE}/>
-          <h1
-            class={`${mediaHeaderStyles.title} text-center text-overflow-wrap`}
-            style={{'margin-top': 0}}
+    <AuthCard class={styles.pageSignQR} inputWrapper={false}>
+      <header class={styles.qrBrandHeader}>
+        <div class={styles.qrBrand}>
+          <span class={styles.qrBrandMark} aria-hidden="true">C</span>
+          <span>CodeKit Connect</span>
+        </div>
+        <span class={styles.qrSecureLabel}>SECURE DEVICE LINKING</span>
+      </header>
+      <section class={styles.qrLayout} aria-labelledby="qr-title">
+        <div class={styles.qrVisualColumn}>
+          <div class={styles.qrContainer}>
+            <div ref={stickerHost} class={styles.qrCanvasHost} role="img" aria-label="Secure QR code for linking this session" />
+            <span class={styles.qrScanLabel}>SECURE QR</span>
+          </div>
+          <p class={styles.qrStatus} aria-live="polite">
+            <span class={styles.qrStatusDot} aria-hidden="true" />
+            {lastDrawnToken ? 'QR code ready to scan' : 'Generating secure QR code…'}
+          </p>
+        </div>
+        <div class={styles.qrInstructions}>
+          <p class={styles.qrEyebrow}>DEVICE AUTHENTICATION</p>
+          <h1 id="qr-title" class={styles.qrTitle}>Connect your account</h1>
+          <p class={styles.qrSubtitle}>Scan this code with your phone to securely link this session.</p>
+          <h2 class={styles.qrStepsTitle}>On your phone</h2>
+          {helpList}
+          <button
+            type="button"
+            class={styles.qrPhoneButton}
+            onClick={() => {
+              stopped = true;
+              navigate({name: 'signIn'});
+            }}
           >
-            {i18n('Login.QR.Title')}
-          </h1>
-          <MediaHeader.Subtitle class="secondary">{i18n('Login.QR.Subtitle')}</MediaHeader.Subtitle>
-        </MediaHeader>
-      }
-    >
-      {helpList}
-      <Button
-        class="btn-primary btn-secondary btn-primary-transparent primary"
-        onClick={() => {
-          stopped = true;
-          navigate({name: 'signIn'});
-        }}
-        text="Login.QR.Cancel"
-      />
-      {getCurrentAccount() === 1 && <LanguageChangeButton />}
-      <PasskeyLoginButton />
+            <span>Use phone number instead</span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <p class={styles.qrDisclosure}>Authentication provided by Telegram</p>
+          <p class={styles.qrDisclosureDetail}>This sign-in is handled through Telegram’s authentication system.</p>
+          <div class={styles.qrUtilities}>
+            {getCurrentAccount() === 1 && <LanguageChangeButton />}
+            <PasskeyLoginButton />
+          </div>
+        </div>
+      </section>
     </AuthCard>
   );
 }

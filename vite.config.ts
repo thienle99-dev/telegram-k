@@ -255,7 +255,7 @@ export default defineConfig({
     cssTarget: ['chrome87', 'edge87', 'firefox78', 'safari14.1'],
     sourcemap: true,
     assetsDir: '',
-    copyPublicDir: false,
+    copyPublicDir: true,
     emptyOutDir: true,
     minify: NO_MINIFY ? false : undefined,
     rolldownOptions: {
