@@ -312,7 +312,7 @@
   margin: 0 !important;
   padding: 0 !important;
   transform: none !important;
-  grid-template-rows: 54px minmax(0, 1fr);
+  grid-template-rows: 48px minmax(0, 1fr);
   width: 100% !important;
   max-width: none !important;
   height: 100vh !important;
@@ -327,55 +327,132 @@
 
 .mini-chat-window.is-pip > .mini-chat-header {
   min-height: 0;
-  height: 54px;
-  padding: 6px 10px;
-  gap: 8px;
+  height: 48px;
+  padding: 4px 8px;
+  gap: 6px;
   border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, .08));
 }
 
 .mini-chat-window.is-pip .mini-chat-avatar {
-  flex-basis: 36px;
-  width: 36px;
-  height: 36px;
+  flex-basis: 32px;
+  width: 32px;
+  height: 32px;
 }
 
 .mini-chat-window.is-pip .mini-chat-title {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.2;
 }
 
 .mini-chat-window.is-pip .mini-chat-control {
-  flex-basis: 32px;
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  min-height: 32px;
+  flex-basis: 30px;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
   border-radius: 8px;
   font-size: 18px;
 }
 
 .mini-chat-window.is-pip .mini-chat-control-icon {
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .mini-chat-window.is-pip .mini-chat-content {
   border-radius: 0;
+  font-size: 13px;
+  --chat-input-height: 48px;
+  --chat-input-height-surplus: 0px;
+  --chat-padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  --messages-text-size: 13px;
+  --messages-secondary-text-size: 10px;
+  --messages-line-height: 17.55px;
+}
+
+.mini-chat-window.is-pip .mini-chat-content .bubbles-group-avatar-container {
+  width: 26px;
+  flex: 0 0 26px;
+}
+
+.mini-chat-window.is-pip .mini-chat-content .bubbles-group-avatar-container .bubbles-group-avatar {
+  width: 26px;
+  height: 26px;
+}
+
+.mini-chat-window.is-pip .mini-chat-content .bubbles-inner {
+  --pip-message-gap: 7px;
+  padding-inline: 8px;
+}
+
+.mini-chat-window.is-pip .mini-chat-content .bubble {
+  --max-width: 84%;
+  max-width: 84%;
+  margin-bottom: 7px;
+}
+
+.mini-chat-window.is-pip .mini-chat-content .bubble-content-wrapper {
+  max-width: 84%;
+}
+
+.mini-chat-window.is-pip .mini-chat-content .bubble-content {
+  padding: 5px 8px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.mini-chat-window.is-pip .mini-chat-content .name {
+  margin: 0 0 2px 2px;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.mini-chat-window.is-pip .mini-chat-content .time {
+  margin-top: 2px;
+  font-size: 10px;
+  line-height: 1;
+  opacity: .6;
+}
+
+.mini-chat-window.is-pip .bubbles-group-avatar-container + .bubble {
+  margin-inline-start: 6px;
+}
+
+.mini-chat-window.is-pip .mini-chat-content .chat-input-wrapper {
+  --button-size: 36px;
+  --button-horizontal-margin: 2px;
+  --padding-vertical: 3px;
+  --padding-horizontal: 4px;
+  min-height: 46px;
+  padding: 3px 4px;
+}
+
+.mini-chat-window.is-pip .mini-chat-content .chat-input-wrapper .btn-icon {
+  flex-basis: 36px;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+}
+
+.mini-chat-window.is-pip .mini-chat-content .input-message-input {
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 @media(max-width: 380px) {
   .mini-chat-window.is-pip {
-    grid-template-rows: 50px minmax(0, 1fr);
+    grid-template-rows: 48px minmax(0, 1fr);
   }
 
   .mini-chat-window.is-pip > .mini-chat-header {
-    height: 50px;
-    padding: 6px 8px;
+    height: 48px;
+    padding: 4px 8px;
   }
 
   .mini-chat-window.is-pip .mini-chat-avatar {
-    flex-basis: 34px;
-    width: 34px;
-    height: 34px;
+    flex-basis: 32px;
+    width: 32px;
+    height: 32px;
   }
 
   .mini-chat-window.is-pip .mini-chat-title {
@@ -383,11 +460,11 @@
   }
 
   .mini-chat-window.is-pip .mini-chat-control {
-    flex-basis: 32px;
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
+    flex-basis: 30px;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
   }
 
   .mini-chat-window.is-pip .mini-chat-control-icon {
@@ -397,6 +474,26 @@
   .mini-chat-window.is-pip .mini-chat-content .bubble {
     --max-width: 88%;
     max-width: 88%;
+    margin-bottom: 6px;
+  }
+
+  .mini-chat-window.is-pip .mini-chat-content .bubble-content {
+    padding: 5px 8px;
+    font-size: 12.5px;
+  }
+
+  .mini-chat-window.is-pip .mini-chat-content .name {
+    font-size: 10px;
+  }
+
+  .mini-chat-window.is-pip .bubbles-group-avatar-container,
+  .mini-chat-window.is-pip .bubbles-group-avatar {
+    width: 26px;
+    height: 26px;
+  }
+
+  .mini-chat-window.is-pip .bubbles-group-avatar-container {
+    flex-basis: 26px;
   }
 }
 
@@ -444,71 +541,71 @@
 }
 
 @container mini-chat (max-width: 400px) {
-  .mini-chat-content {
+  .mini-chat-window:not(.is-pip) .mini-chat-content {
     font-size: clamp(.8125rem, 3.5cqi, .9375rem);
   }
 
-  .mini-chat-header {
+  .mini-chat-window:not(.is-pip) .mini-chat-header {
     min-height: 40px;
     gap: 4px;
     padding-inline: 6px;
   }
 
-  .mini-chat-avatar {
+  .mini-chat-window:not(.is-pip) .mini-chat-avatar {
     flex-basis: 28px;
     width: 28px;
     height: 28px;
   }
 
-  .mini-chat-control {
+  .mini-chat-window:not(.is-pip) .mini-chat-control {
     flex-basis: 36px;
     width: 36px;
     height: 36px;
   }
 
-  .mini-chat-content .bubbles-inner {
+  .mini-chat-window:not(.is-pip) .mini-chat-content .bubbles-inner {
     padding-inline: 6px;
   }
 
-  .mini-chat-content .bubble {
+  .mini-chat-window:not(.is-pip) .mini-chat-content .bubble {
     --max-width: 86%;
     max-width: 86%;
   }
 }
 
 @container mini-chat (max-width: 340px) {
-  .mini-chat-content {
+  .mini-chat-window:not(.is-pip) .mini-chat-content {
     font-size: clamp(.8125rem, 3.2cqi, .875rem);
   }
 
-  .mini-chat-header {
+  .mini-chat-window:not(.is-pip) .mini-chat-header {
     gap: 2px;
     padding-inline: 4px;
   }
 
-  .mini-chat-avatar {
+  .mini-chat-window:not(.is-pip) .mini-chat-avatar {
     flex-basis: 24px;
     width: 24px;
     height: 24px;
   }
 
-  .mini-chat-control {
+  .mini-chat-window:not(.is-pip) .mini-chat-control {
     flex-basis: 36px;
     width: 36px;
     height: 36px;
     font-size: 18px;
   }
 
-  .mini-chat-content .chat-input-wrapper {
+  .mini-chat-window:not(.is-pip) .mini-chat-content .chat-input-wrapper {
     --button-size: 2rem;
     --button-horizontal-margin: .125rem;
   }
 
-  .mini-chat-content .bubbles-inner {
+  .mini-chat-window:not(.is-pip) .mini-chat-content .bubbles-inner {
     padding-inline: 4px;
   }
 
-  .mini-chat-content .bubble {
+  .mini-chat-window:not(.is-pip) .mini-chat-content .bubble {
     --max-width: 90%;
     max-width: 90%;
   }
